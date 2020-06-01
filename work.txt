@@ -1,0 +1,68 @@
+import { Component } from '@angular/core';
+import { FormBuilder, FormGroup, FormArray, FormControl, ValidatorFn } from '@angular/forms';
+import { Subscription } from 'rxjs';
+@Component({
+  selector: 'my-app',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+})
+export class AppComponent {
+  form: FormGroup;
+  subscription: Subscription;
+  checkboxControl:any;
+  entityDOcList = [
+    { documentName: 'order 1' },
+    { documentName: 'order 2' },
+    {  documentName: 'order 3' },
+    {documentName: 'order 4' }
+  ];
+
+  constructor(private formBuilder: FormBuilder) {
+   
+
+    this.form = this.formBuilder.group({
+      entityLevelDoc: new FormArray([] )
+    });
+    
+    //controls[0].setValue(false);
+     this.checkboxControl = (this.form.controls.entityLevelDoc as FormArray);
+     let controls = this.entityDOcList.map(c => new FormControl(false));
+     for(let i=0; i<controls.length; i++ ){
+        this.checkboxControl.push(controls[i])
+     }
+    this.subscription = this.checkboxControl.valueChanges.subscribe(checkbox => {
+      this.checkboxControl.setValue(
+        this.checkboxControl.value.map((value, i) => value ? this.entityDOcList[i].documentName : false),
+        { emitEvent: false }
+      );
+    });
+  }
+
+  submit() {
+const checkboxControl = (this.form.controls.entityLevelDoc as FormArray);
+    const formValue = {
+    
+      entity: checkboxControl.value.filter(value => !!value)
+    }
+    console.log(formValue);
+   // console.log(this.checkboxControl.value.filter(value => !!value))
+   
+  }
+}
+
+
+
+
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <label formArrayName="entityLevelDoc" *ngFor="let order of form.controls.entityLevelDoc.controls; let i = index">
+    <input type="checkbox" [formControlName]="i">
+    {{entityDOcList[i].documentName}}
+  </label>
+
+  <div *ngIf="!form.valid">At least one order must be selected</div>
+  <br>
+  <button [disabled]="!form.valid">submit</button>
+</form>
+
+
+https://stackblitz.com/edit/angular-checkbox-dynamic
