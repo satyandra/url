@@ -1,74 +1,62 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Modal Dialog</title>
-<style>
-body {
-font-family: Arial, sans-serif;
-margin: 0;
-padding: 0;
-display: flex;
-align-items: center;
-justify-content: center;
-height: 100vh;
-background-color: #f0f0f0;
+✅ 1. HTML Structure
+Ensure your modal-section.component.html looks like this:
+
+html
+Copy
+Edit
+<div mat-dialog-container class="custom-dialog-container">
+  <button mat-icon-button class="close-button" mat-dialog-close>
+    <mat-icon color="warn">close</mat-icon>
+  </button>
+
+  <h1 mat-dialog-title>Hi {{data.name}}</h1>
+  <div mat-dialog-content>
+    <p>What's your favorite animal?</p>
+  </div>
+
+  <div mat-dialog-actions class="dialog-actions">
+    <button mat-button (click)="onNoClick()">No Thanks</button>
+    <button mat-button [mat-dialog-close]="data.animal" cdkFocusInitial>Ok</button>
+  </div>
+</div>
+✅ 2. CSS Styling
+Add the following to your modal-section.component.scss (or .css):
+
+scss
+Copy
+Edit
+::ng-deep .mat-dialog-container.custom-dialog-container {
+  background-color: white;
+  border-radius: 8px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
 }
-.modal {
-background-color: white;
-border-radius: 8px;
-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-width: 400px;
-position: relative;
-padding: 20px;
-}
+
 .close-button {
-position: absolute;
-top: 10px;
-right: 10px;
-background: none;
-border: none;
-font-size: 20px;
-cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 10;
 }
-.modal-content {
-margin: 20px 0;
-}
-.modal-actions {
-display: flex;
-justify-content: flex-end;
-gap: 10px;
-}
-.modal button {
-padding: 10px 20px;
-cursor: pointer;
-border: none;
-border-radius: 5px;
-}
-.ok-button {
-background-color: #007bff;
-color: white;
-}
-.cancel-button {
-background-color: #ccc;
-color: black;
-}
-</style>
-</head>
-<body>
-<div class="modal">
-<button class="close-button">&times;</button>
-<h2>Modal Title</h2>
-<div class="modal-content">
-<p>What's your favorite animal?</p>
-</div>
-<div class="modal-actions">
-<button class="cancel-button">No Thanks</button>
-<button class="ok-button">OK</button>
-</div>
-</div>
-</body>
-</html>
 
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+🔍 ::ng-deep is used to override Angular Material styles. If using newer Angular versions, consider using a global style file or encapsulation strategies.
 
+✅ 3. Optional Enhancements
+If you want to apply these styles globally or ensure they work with dynamic modals, apply them in styles.scss with ::ng-deep or use [panelClass] in your TypeScript component when opening the modal:
+
+ts
+Copy
+Edit
+this.dialog.open(ModalSectionComponent, {
+  panelClass: 'custom-dialog-container',
+  data: { name: 'John' }
+});
+Let me know if you'd like help implementing this in your TypeScript logic or setting up animations/styling refinements.
+
+You said:
