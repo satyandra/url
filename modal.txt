@@ -60,3 +60,81 @@ this.dialog.open(ModalSectionComponent, {
 Let me know if you'd like help implementing this in your TypeScript logic or setting up animations/styling refinements.
 
 You said:
+
+✅ Step-by-Step CSS Override
+Add this to your styles.scss (global stylesheet), or use ::ng-deep in the component stylesheet.
+
+✅ Global Style (Recommended for full override):
+scss
+Copy
+Edit
+.mat-mdc-dialog-container {
+  background-color: #ffffff !important;
+  border-radius: 12px !important;
+  padding: 0 !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.mat-mdc-dialog-content {
+  padding: 24px !important;
+  max-height: 65vh !important;
+  overflow-y: auto !important;
+  min-height: 20vh !important;
+  color: #000 !important;
+  font-family: 'Arial', sans-serif !important;
+  font-size: 1rem !important;
+}
+
+.mat-mdc-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 24px !important;
+  border-top: 1px solid #eee;
+}
+
+.close-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10;
+}
+✅ Using ::ng-deep (if styles are component-specific):
+scss
+Copy
+Edit
+::ng-deep .mat-mdc-dialog-container {
+  background: white;
+  border-radius: 10px;
+  padding: 0;
+}
+
+::ng-deep .mat-mdc-dialog-content {
+  padding: 20px;
+  max-height: 65vh;
+  min-height: 20vh;
+  overflow-y: auto;
+}
+
+::ng-deep .mat-mdc-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 16px 24px;
+}
+
+::ng-deep .close-button {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+}
+❗ Important Notes:
+Use !important sparingly, only if the styles are not applying due to Angular Material specificity.
+
+Ensure your dialog is using a custom panelClass if needed to scope styles:
+
+ts
+Copy
+Edit
+this.dialog.open(MyDialogComponent, {
+  panelClass: 'custom-dialog'
+});
