@@ -70,3 +70,209 @@ Edit
   background: #fff;
   border-radius: 10px;
 }
+-----------------------------------------------------------------------------
+
+import { Component } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+
+@Component({
+selector: 'app-root',
+templateUrl: './app.component.html',
+})
+export class AppComponent {
+form: FormGroup;
+
+// Added 'websiteUrl' (optional with URL validation)
+allTextFields = ['firstName', 'lastName', 'email', 'address', 'cadAmount', 'websiteUrl'];
+
+dropdownFields = ['hobbies', 'skills', 'languages', 'tools', 'platforms'];
+dropdownOptions = {
+hobbies: ['Reading', 'Traveling', 'Gaming'],
+skills: ['Angular', 'React', 'Vue'],
+languages: ['English', 'French', 'Spanish'],
+tools: ['Git', 'Docker', 'Jenkins'],
+platforms: ['Web', 'Mobile', 'Desktop'],
+};
+
+// Pairs for layout (two fields per row)
+fieldPairs: string[][] = [];
+dropdownPairs: string[][] = [];
+
+constructor(private fb: FormBuilder) {
+this.form = this.fb.group({});
+
+this.allTextFields.forEach(field => {
+if (field === 'websiteUrl') {
+// URL validation, not required
+this.form.addControl(
+field,
+this.fb.control(
+'',
+Validators.pattern(/^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w- ./?%&=]*)?$/)
+)
+);
+} else if (field === 'cadAmount') {
+this.form.addControl(field, this.fb.control('', Validators.required));
+} else {
+this.form.addControl(field, this.fb.control('', Validators.required));
+}
+});
+
+this.dropdownFields.forEach(field => {
+this.form.addControl(field, this.fb.control([], Validators.required));
+});
+
+this.fieldPairs = this.chunkArray(this.allTextFields, 2);
+this.dropdownPairs = this.chunkArray(this.dropdownFields, 2);
+}
+
+chunkArray(arr: string[], chunkSize: number): string[][] {
+const chunks = [];
+for (let i = 0; i < arr.length; i += chunkSize) {
+chunks.push(arr.slice(i, i + chunkSize));
+}
+return chunks;
+}
+
+toggleSelection(field: string, value: string) {
+const control = this.form.get(field);
+const selected = control?.value || [];
+const index = selected.indexOf(value);
+if (index === -1) selected.push(value);
+else selected.splice(index, 1);
+control?.setValue([...selected]);
+}
+
+formatCAD(event: any) {
+let value = event.target.value.replace(/[^0-9.]/g, '');
+const floatVal = parseFloat(value);
+if (!isNaN(floatVal)) {
+event.target.value = `$${floatVal.toFixed(2)}`;
+this.form.get('cadAmount')?.setValue(event.target.value);
+}
+}
+
+submit() {
+if (this.form.valid) {
+alert('Form submitted successfully!');
+console.log(this.form.value);
+} else {
+this.form.markAllAsTouched();
+alert('Please fill all required fields!');
+}
+}
+}
+
+
+
+<form [formGroup]="form" class="form-container">
+
+<!-- Text Fields + CAD + URL in two-fields-per-row -->
+<div class="row" *ngFor="let pair of fieldPairs">
+<mat-form-field appearance="outline" class="field">
+<mat-label>{{ pair[0] | titlecase }}</mat-label>
+
+<ng-container [ngSwitch]="pair[0]">
+<input
+*ngSwitchCase="'cadAmount'"
+matInput
+formControlName="cadAmount"
+(input)="formatCAD($event)"
+placeholder="$0.00"
+/>
+<input *ngSwitchDefault matInput [formControlName]="pair[0]" />
+</ng-container>
+
+<mat-error *ngIf="form.get(pair[0])?.invalid && form.get(pair[0])?.touched">
+<!-- Special message for URL -->
+<ng-container *ngIf="pair[0] === 'websiteUrl'">
+Please enter a valid URL
+</ng-container>
+<ng-container *ngIf="pair[0] !== 'websiteUrl'">
+{{ pair[0] | titlecase }} is required
+</ng-container>
+</mat-error>
+</mat-form-field>
+
+<mat-form-field appearance="outline" class="field" *ngIf="pair[1]">
+<mat-label>{{ pair[1] | titlecase }}</mat-label>
+
+<ng-container [ngSwitch]="pair[1]">
+<input
+*ngSwitchCase="'cadAmount'"
+matInput
+formControlName="cadAmount"
+(input)="formatCAD($event)"
+placeholder="$0.00"
+/>
+<input *ngSwitchDefault matInput [formControlName]="pair[1]" />
+</ng-container>
+
+<mat-error *ngIf="form.get(pair[1])?.invalid && form.get(pair[1])?.touched">
+<ng-container *ngIf="pair[1] === 'websiteUrl'">
+Please enter a valid URL
+</ng-container>
+<ng-container *ngIf="pair[1] !== 'websiteUrl'">
+{{ pair[1] | titlecase }} is required
+</ng-container>
+</mat-error>
+</mat-form-field>
+</div>
+
+<!-- Multi-select dropdowns in two-fields-per-row -->
+<div class="row" *ngFor="let pair of dropdownPairs">
+<mat-form-field appearance="outline" class="dropdown" *ngFor="let field of pair">
+<mat-label>{{ field | titlecase }}</mat-label>
+<mat-select [formControlName]="field" multiple>
+<div class="two-column-options">
+<mat-option *ngFor="let option of dropdownOptions[field]" [value]="option">
+<mat-checkbox
+[checked]="form.get(field)?.value.includes(option)"
+(click)="$event.stopPropagation()"
+(change)="toggleSelection(field, option)">
+{{ option }}
+</mat-checkbox>
+</mat-option>
+</div>
+</mat-select>
+<mat-error *ngIf="form.get(field)?.invalid && form.get(field)?.touched">
+{{ field | titlecase }} is required
+</mat-error>
+</mat-form-field>
+</div>
+
+<div style="margin-top: 16px;">
+<button mat-raised-button color="primary" (click)="submit()">Submit</button>
+</div>
+
+</form>
+
+
+
+.form-container {
+max-width: 800px;
+margin: auto;
+}
+
+.row {
+display: flex;
+gap: 16px;
+margin-bottom: 16px;
+}
+
+.field {
+flex: 1 1 50%;
+min-width: 200px;
+}
+
+.dropdown {
+flex: 1 1 50%;
+min-width: 300px;
+}
+
+.two-column-options {
+display: grid;
+grid-template-columns: 1fr 1fr;
+padding: 8px;
+gap: 8px;
+}
