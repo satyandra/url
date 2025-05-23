@@ -1,278 +1,184 @@
-
-1. Component HTML (modal-section.component.html)
-html
-Copy
-Edit
-<div class="custom-dialog">
-  <!-- Close Button -->
-  <button mat-icon-button class="close-button" mat-dialog-close>
-    <mat-icon color="warn">close</mat-icon>
-  </button>
-
-  <!-- Title -->
-  <h1 mat-dialog-title>Hi {{ data.name }}</h1>
-
-  <!-- Content -->
-  <div mat-dialog-content>
-    <p>What's your favorite animal?</p>
-  </div>
-
-  <!-- Actions -->
-  <div mat-dialog-actions class="dialog-actions">
-    <button mat-button (click)="onNoClick()">No Thanks</button>
-    <button mat-button [mat-dialog-close]="data.animal" cdkFocusInitial>Ok</button>
-  </div>
-</div>
-2. Component CSS/SCSS (modal-section.component.scss)
-scss
-Copy
-Edit
-::ng-deep .mat-mdc-dialog-container {
-  background-color: #fff !important;
-  border-radius: 12px;
-  padding: 0;
-  overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  position: relative;
-}
-
-.custom-dialog {
-  position: relative;
-  padding: 24px;
-}
-
-.close-button {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  z-index: 10;
-}
-
-.dialog-actions {
-  display: flex;
-  justify-content: flex-end;
-  padding-top: 16px;
-}
-3. Open Dialog With Custom Style (from parent component)
+ app.component.ts
 ts
 Copy
 Edit
-this.dialog.open(ModalSectionComponent, {
-  data: { name: 'John' },
-  panelClass: 'custom-dialog-panel'  // Optional: apply a global class
-});
-In styles.scss:
-
-scss
-Copy
-Edit
-.custom-dialog-panel .mat-mdc-dialog-container {
-  background: #fff;
-  border-radius: 10px;
-}
------------------------------------------------------------------------------
-
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
 @Component({
-selector: 'app-root',
-templateUrl: './app.component.html',
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
 })
-export class AppComponent {
-form: FormGroup;
+export class AppComponent implements OnInit {
+  form: FormGroup;
+  options = ['Option 1', 'Option 2', 'Option 3'];
 
-// Added 'websiteUrl' (optional with URL validation)
-allTextFields = ['firstName', 'lastName', 'email', 'address', 'cadAmount', 'websiteUrl'];
+  textFields = [
+    { name: 'field1', label: 'Field 1' },
+    { name: 'field2', label: 'Field 2' },
+    { name: 'field3', label: 'Field 3' },
+    { name: 'field4', label: 'Field 4' },
+    { name: 'field5', label: 'Field 5' }
+  ];
 
-dropdownFields = ['hobbies', 'skills', 'languages', 'tools', 'platforms'];
-dropdownOptions = {
-hobbies: ['Reading', 'Traveling', 'Gaming'],
-skills: ['Angular', 'React', 'Vue'],
-languages: ['English', 'French', 'Spanish'],
-tools: ['Git', 'Docker', 'Jenkins'],
-platforms: ['Web', 'Mobile', 'Desktop'],
-};
+  multiSelects = [
+    { name: 'multi1', label: 'Multi 1' },
+    { name: 'multi2', label: 'Multi 2' },
+    { name: 'multi3', label: 'Multi 3' },
+    { name: 'multi4', label: 'Multi 4' }
+  ];
 
-// Pairs for layout (two fields per row)
-fieldPairs: string[][] = [];
-dropdownPairs: string[][] = [];
+  constructor(private fb: FormBuilder) {
+    this.form = this.fb.group({
+      field1: [''],
+      field2: [''],
+      field3: [''],
+      field4: [''],
+      field5: [''],
+      multi1: [[]],
+      multi2: [[]],
+      multi3: [[]],
+      multi4: [[]],
+      url: ['', [Validators.pattern('https?://.+')]]
+    });
+  }
 
-constructor(private fb: FormBuilder) {
-this.form = this.fb.group({});
+  ngOnInit(): void {
+    this.patchValues();
+  }
 
-this.allTextFields.forEach(field => {
-if (field === 'websiteUrl') {
-// URL validation, not required
-this.form.addControl(
-field,
-this.fb.control(
-'',
-Validators.pattern(/^(https?:\/\/)?([\w-]+\.)+[\w-]+(\/[\w- ./?%&=]*)?$/)
-)
-);
-} else if (field === 'cadAmount') {
-this.form.addControl(field, this.fb.control('', Validators.required));
-} else {
-this.form.addControl(field, this.fb.control('', Validators.required));
+  setRequiredFields(count: number) {
+    const allControls = [
+      ...this.textFields.map(f => f.name),
+      ...this.multiSelects.map(m => m.name),
+      'url'
+    ];
+
+    allControls.forEach(control => {
+      this.form.get(control)?.clearValidators();
+    });
+
+    allControls.slice(0, count).forEach(control => {
+      if (control === 'url') {
+        this.form.get(control)?.setValidators([
+          Validators.required,
+          Validators.pattern('https?://.+')
+        ]);
+      } else {
+        this.form.get(control)?.setValidators([Validators.required]);
+      }
+    });
+
+    allControls.forEach(control => {
+      this.form.get(control)?.updateValueAndValidity();
+    });
+  }
+
+  patchValues() {
+    this.form.patchValue({
+      field1: 'Alpha',
+      field2: 'Beta',
+      field3: 'Gamma',
+      field4: 'Delta',
+      field5: 'Epsilon',
+      multi1: ['Option 1', 'Option 2'],
+      multi2: ['Option 3'],
+      multi3: [],
+      multi4: ['Option 1'],
+      url: 'https://example.com'
+    });
+  }
 }
-});
+🧩 app.component.html
+html
+Copy
+Edit
+<form [formGroup]="form">
+  <div class="form-grid">
+    <mat-form-field appearance="fill" *ngFor="let control of textFields">
+      <mat-label>{{ control.label }}</mat-label>
+      <input matInput [formControlName]="control.name" />
+      <mat-error *ngIf="form.get(control.name)?.hasError('required')">
+        {{ control.label }} is required
+      </mat-error>
+    </mat-form-field>
 
-this.dropdownFields.forEach(field => {
-this.form.addControl(field, this.fb.control([], Validators.required));
-});
+    <mat-form-field appearance="fill" *ngFor="let control of multiSelects">
+      <mat-label>{{ control.label }}</mat-label>
+      <mat-select [formControlName]="control.name" multiple>
+        <mat-option *ngFor="let option of options" [value]="option">
+          {{ option }}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="form.get(control.name)?.hasError('required')">
+        {{ control.label }} is required
+      </mat-error>
+    </mat-form-field>
 
-this.fieldPairs = this.chunkArray(this.allTextFields, 2);
-this.dropdownPairs = this.chunkArray(this.dropdownFields, 2);
-}
+    <mat-form-field appearance="fill">
+      <mat-label>URL</mat-label>
+      <input matInput formControlName="url" />
+      <mat-error *ngIf="form.get('url')?.hasError('required')">
+        URL is required
+      </mat-error>
+      <mat-error *ngIf="form.get('url')?.hasError('pattern')">
+        Enter a valid URL (https://...)
+      </mat-error>
+    </mat-form-field>
+  </div>
 
-chunkArray(arr: string[], chunkSize: number): string[][] {
-const chunks = [];
-for (let i = 0; i < arr.length; i += chunkSize) {
-chunks.push(arr.slice(i, i + chunkSize));
-}
-return chunks;
-}
-
-toggleSelection(field: string, value: string) {
-const control = this.form.get(field);
-const selected = control?.value || [];
-const index = selected.indexOf(value);
-if (index === -1) selected.push(value);
-else selected.splice(index, 1);
-control?.setValue([...selected]);
-}
-
-formatCAD(event: any) {
-let value = event.target.value.replace(/[^0-9.]/g, '');
-const floatVal = parseFloat(value);
-if (!isNaN(floatVal)) {
-event.target.value = `$${floatVal.toFixed(2)}`;
-this.form.get('cadAmount')?.setValue(event.target.value);
-}
-}
-
-submit() {
-if (this.form.valid) {
-alert('Form submitted successfully!');
-console.log(this.form.value);
-} else {
-this.form.markAllAsTouched();
-alert('Please fill all required fields!');
-}
-}
-}
-
-
-
-<form [formGroup]="form" class="form-container">
-
-<!-- Text Fields + CAD + URL in two-fields-per-row -->
-<div class="row" *ngFor="let pair of fieldPairs">
-<mat-form-field appearance="outline" class="field">
-<mat-label>{{ pair[0] | titlecase }}</mat-label>
-
-<ng-container [ngSwitch]="pair[0]">
-<input
-*ngSwitchCase="'cadAmount'"
-matInput
-formControlName="cadAmount"
-(input)="formatCAD($event)"
-placeholder="$0.00"
-/>
-<input *ngSwitchDefault matInput [formControlName]="pair[0]" />
-</ng-container>
-
-<mat-error *ngIf="form.get(pair[0])?.invalid && form.get(pair[0])?.touched">
-<!-- Special message for URL -->
-<ng-container *ngIf="pair[0] === 'websiteUrl'">
-Please enter a valid URL
-</ng-container>
-<ng-container *ngIf="pair[0] !== 'websiteUrl'">
-{{ pair[0] | titlecase }} is required
-</ng-container>
-</mat-error>
-</mat-form-field>
-
-<mat-form-field appearance="outline" class="field" *ngIf="pair[1]">
-<mat-label>{{ pair[1] | titlecase }}</mat-label>
-
-<ng-container [ngSwitch]="pair[1]">
-<input
-*ngSwitchCase="'cadAmount'"
-matInput
-formControlName="cadAmount"
-(input)="formatCAD($event)"
-placeholder="$0.00"
-/>
-<input *ngSwitchDefault matInput [formControlName]="pair[1]" />
-</ng-container>
-
-<mat-error *ngIf="form.get(pair[1])?.invalid && form.get(pair[1])?.touched">
-<ng-container *ngIf="pair[1] === 'websiteUrl'">
-Please enter a valid URL
-</ng-container>
-<ng-container *ngIf="pair[1] !== 'websiteUrl'">
-{{ pair[1] | titlecase }} is required
-</ng-container>
-</mat-error>
-</mat-form-field>
-</div>
-
-<!-- Multi-select dropdowns in two-fields-per-row -->
-<div class="row" *ngFor="let pair of dropdownPairs">
-<mat-form-field appearance="outline" class="dropdown" *ngFor="let field of pair">
-<mat-label>{{ field | titlecase }}</mat-label>
-<mat-select [formControlName]="field" multiple>
-<div class="two-column-options">
-<mat-option *ngFor="let option of dropdownOptions[field]" [value]="option">
-<mat-checkbox
-[checked]="form.get(field)?.value.includes(option)"
-(click)="$event.stopPropagation()"
-(change)="toggleSelection(field, option)">
-{{ option }}
-</mat-checkbox>
-</mat-option>
-</div>
-</mat-select>
-<mat-error *ngIf="form.get(field)?.invalid && form.get(field)?.touched">
-{{ field | titlecase }} is required
-</mat-error>
-</mat-form-field>
-</div>
-
-<div style="margin-top: 16px;">
-<button mat-raised-button color="primary" (click)="submit()">Submit</button>
-</div>
-
+  <div class="buttons">
+    <button mat-raised-button color="primary" (click)="setRequiredFields(6)">Set 6 Required</button>
+    <button mat-raised-button color="accent" (click)="setRequiredFields(9)">Set 9 Required</button>
+    <button mat-raised-button color="warn" (click)="patchValues()">Patch Values</button>
+  </div>
 </form>
-
-
-
-.form-container {
-max-width: 800px;
-margin: auto;
+🎨 app.component.css
+css
+Copy
+Edit
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
 }
 
-.row {
-display: flex;
-gap: 16px;
-margin-bottom: 16px;
+.buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
 }
+📦 app.module.ts
+Ensure these are imported:
 
-.field {
-flex: 1 1 50%;
-min-width: 200px;
-}
+ts
+Copy
+Edit
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { ReactiveFormsModule } from '@angular/forms';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
 
-.dropdown {
-flex: 1 1 50%;
-min-width: 300px;
-}
+import { AppComponent } from './app.component';
 
-.two-column-options {
-display: grid;
-grid-template-columns: 1fr 1fr;
-padding: 8px;
-gap: 8px;
-}
+@NgModule({
+  declarations: [AppComponent],
+  imports: [
+    BrowserModule,
+    ReactiveFormsModule,
+    BrowserAnimationsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule {}
