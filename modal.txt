@@ -202,3 +202,68 @@ export class AppModule {}
   <button mat-raised-button color="accent" (click)="setRequiredFields(9)">Set 9 Required</button>
   <button mat-raised-button color="warn" (click)="patchValues()">Patch Values</button>
 </div>
+.title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #003366;
+  text-align: center;
+  margin: 24px 0 8px;
+  border-bottom: 2px solid #e0e0e0;
+  padding-bottom: 8px;
+}
+
+.form-container {
+  display: flex;
+  flex-direction: row;
+  gap: 40px;
+  padding: 40px 60px;
+  background: #fff;
+  border: 1px solid #dcdcdc;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  max-width: 1200px;
+  margin: auto;
+}
+
+.form-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+mat-form-field {
+  background: #fafafa;
+  border-radius: 4px;
+}
+
+mat-label {
+  font-weight: 500;
+  color: #003366;
+}
+
+mat-hint {
+  font-size: 12px;
+  color: #666;
+}
+
+.button-row {
+  margin-top: 32px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.button-row button {
+  min-width: 120px;
+  font-weight: 500;
+}
+
+button.mat-raised-button {
+  border-radius: 24px;
+  padding: 8px 24px;
+}
