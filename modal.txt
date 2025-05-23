@@ -1,377 +1,174 @@
-import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
 
 @Component({
-  selector: 'app-root',
-  templateUrl: './app.component.html'
+  selector: 'app-initiative-form',
+  templateUrl: './initiative-form.component.html',
+  styleUrls: ['./initiative-form.component.scss']
 })
-export class AppComponent {
-  form: FormGroup;
-  disableFields = false;
+export class InitiativeFormComponent implements OnInit {
+  initiativeForm!: FormGroup;
 
-  // Define dynamic fields for the form
-  leftFields = [
-    { name: 'field1', label: 'Text Field 1', type: 'text' },
-    { name: 'field2', label: 'Text Field 2', type: 'text' },
-    { name: 'multi1', label: 'MultiSelect 1', type: 'select' },
-    { name: 'multi2', label: 'MultiSelect 2', type: 'select' },
-    { name: 'url', label: 'Repository URL', type: 'text' }
-  ];
+  initiativeTypes = ['Regulatory', 'Strategic', 'Operational'];
+  pmos = ['PMO 1', 'PMO 2', 'PMO 3'];
+  delegateOptions = ['Delegate 1', 'Delegate 2', 'Delegate 3'];
+  projectManagerOptions = ['PM 1', 'PM 2', 'PM 3'];
 
-  rightFields = [
-    { name: 'field3', label: 'Text Field 3', type: 'text' },
-    { name: 'field4', label: 'Text Field 4', type: 'text' },
-    { name: 'field5', label: 'Text Field 5', type: 'text' },
-    { name: 'multi3', label: 'MultiSelect 3', type: 'select' },
-    { name: 'multi4', label: 'MultiSelect 4', type: 'select' }
-  ];
+  constructor(private fb: FormBuilder) {}
 
-  // Multi-select options
-  options: Record<string, string[]> = {
-    multi1: ['Option A', 'Option B', 'Option C'],
-    multi2: ['Option X', 'Option Y', 'Option Z'],
-    multi3: ['Red', 'Green', 'Blue'],
-    multi4: ['One', 'Two', 'Three']
-  };
-
-  constructor(private fb: FormBuilder) {
-    this.form = this.fb.group({});
-    this.initForm();
-  }
-
-  initForm() {
-    // Add all controls dynamically
-    [...this.leftFields, ...this.rightFields].forEach(field => {
-      this.form.addControl(
-        field.name,
-        this.fb.control({ value: '', disabled: this.disableFields })
-      );
+  ngOnInit(): void {
+    this.initiativeForm = this.fb.group({
+      initiativeName: ['', Validators.required],
+      prNumber: ['', Validators.required],
+      fiNumber: ['', Validators.required],
+      initiativeType: ['', Validators.required],
+      fundingAmount: ['', [Validators.required, this.currencyValidator]],
+      pmo: ['', Validators.required],
+      accountableExecutive: ['', Validators.required],
+      delegates: [[]],
+      projectManagers: [[], Validators.required],
+      repositoryUrl: ['', Validators.pattern('https?://.+')]
     });
   }
 
-  setRequiredFields(count: number) {
-    // Remove existing validators
-    Object.keys(this.form.controls).forEach(key => {
-      const control = this.form.get(key);
-      control?.clearValidators();
-      control?.updateValueAndValidity();
-    });
-
-    // Set validators on first `count` fields
-    const allFields = [...this.leftFields, ...this.rightFields];
-    allFields.slice(0, count).forEach(field => {
-      const control = this.form.get(field.name);
-      control?.setValidators(Validators.required);
-      control?.updateValueAndValidity();
-    });
+  isFieldInvalid(fieldName: string): boolean {
+    const control = this.initiativeForm.get(fieldName);
+    return !!(control && control.invalid && (control.touched || control.dirty));
   }
 
-  patchValues() {
-    this.form.patchValue({
-      field1: 'Patched Text 1',
-      field2: 'Patched Text 2',
-      field3: 'Patched Text 3',
-      field4: 'Patched Text 4',
-      field5: 'Patched Text 5',
-      url: 'https://example.com',
-      multi1: ['Option A', 'Option C'],
-      multi2: ['Option Y'],
-      multi3: ['Red', 'Blue'],
-      multi4: ['One']
-    });
+  validateForm(requiredFieldCount: number): void {
+    const allFields = Object.keys(this.initiativeForm.controls);
+    const fieldsToCheck = requiredFieldCount === 6 ? allFields.slice(0, 6) : allFields;
+
+    for (const field of fieldsToCheck) {
+      this.initiativeForm.get(field)?.markAsTouched();
+    }
+
+    const invalidFields = fieldsToCheck.filter(field => this.initiativeForm.get(field)?.invalid);
+
+    if (invalidFields.length === 0) {
+      alert(`✅ ${requiredFieldCount === 6 ? 'First 6' : 'All'} fields are valid.`);
+    } else {
+      alert(`❌ Please fill out required fields.`);
+    }
+  }
+
+  formatCurrency(controlName: string): void {
+    const control = this.initiativeForm.get(controlName);
+    const value = control?.value;
+    if (value && !isNaN(value)) {
+      control?.setValue(parseFloat(value).toFixed(2));
+    }
+  }
+
+  currencyValidator(control: AbstractControl): { [key: string]: any } | null {
+    const value = control.value;
+    const pattern = /^\d+(?:\.\d{1,2})?$/;
+    return pattern.test(value) ? null : { invalidCurrency: true };
   }
 }
-
-===============
-import { NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-import { ReactiveFormsModule } from '@angular/forms';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-
-import { AppComponent } from './app.component';
-
-@NgModule({
-  declarations: [AppComponent],
-  imports: [
-    BrowserModule,
-    ReactiveFormsModule,
-    BrowserAnimationsModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule
-  ],
-  bootstrap: [AppComponent]
-})
-export class AppModule {}
-===========================
-.title {
-  font-size: 26px;
-  font-weight: 600;
-  color: #003366;
-  padding: 16px 0;
-  margin-bottom: 8px;
-  border-bottom: 2px solid #ccc;
-  text-align: center;
-}
-
-.form-container {
-  display: flex;
-  gap: 40px;
-  padding: 32px 48px;
-  background: #ffffff;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-.form-column {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-}
-
-.full-width {
-  width: 100%;
-}
-
-.button-row {
-  margin-top: 24px;
-  text-align: center;
-}
-
-.button-row button {
-  margin: 0 12px;
-  min-width: 120px;
-}
-===========
-<h2 class="title">MyProjects</h2>
-
-<form [formGroup]="form" class="form-container">
-  <!-- Left Column -->
-  <div class="form-column">
-    <ng-container *ngFor="let field of leftFields">
-      <!-- Text Fields -->
-      <mat-form-field appearance="fill" class="full-width" *ngIf="field.type === 'text'">
-        <mat-label>{{ field.label }}</mat-label>
-        <input matInput [formControlName]="field.name" [disabled]="disableFields" />
-        <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
+==========================
+<form [formGroup]="initiativeForm" class="form-container">
+  <div class="form-row">
+    <div class="form-column">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Initiative Name</mat-label>
+        <input matInput formControlName="initiativeName" required>
+        <mat-error *ngIf="isFieldInvalid('initiativeName')">Required</mat-error>
       </mat-form-field>
 
-      <!-- Multi-select Fields -->
-      <mat-form-field appearance="fill" class="full-width" *ngIf="field.type === 'select'">
-        <mat-label>{{ field.label }}</mat-label>
-        <mat-select [formControlName]="field.name" multiple [disabled]="disableFields">
-          <mat-option *ngFor="let option of options[field.name]" [value]="option">{{ option }}</mat-option>
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>PR Number</mat-label>
+        <input matInput formControlName="prNumber" required>
+        <mat-error *ngIf="isFieldInvalid('prNumber')">Required</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>FI Number</mat-label>
+        <input matInput formControlName="fiNumber" required>
+        <mat-error *ngIf="isFieldInvalid('fiNumber')">Required</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Initiative Type</mat-label>
+        <mat-select formControlName="initiativeType" required>
+          <mat-option *ngFor="let type of initiativeTypes" [value]="type">{{ type }}</mat-option>
         </mat-select>
-        <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
+        <mat-error *ngIf="isFieldInvalid('initiativeType')">Required</mat-error>
       </mat-form-field>
-    </ng-container>
+    </div>
+
+    <div class="form-column">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Funding Amount</mat-label>
+        <input matInput formControlName="fundingAmount" required (blur)="formatCurrency('fundingAmount')">
+        <span matPrefix>$&nbsp;</span>
+        <mat-error *ngIf="isFieldInvalid('fundingAmount')">Enter a valid amount</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>PMO</mat-label>
+        <mat-select formControlName="pmo" required>
+          <mat-option *ngFor="let p of pmos" [value]="p">{{ p }}</mat-option>
+        </mat-select>
+        <mat-error *ngIf="isFieldInvalid('pmo')">Required</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Accountable Executive</mat-label>
+        <input matInput formControlName="accountableExecutive" required>
+        <mat-error *ngIf="isFieldInvalid('accountableExecutive')">Required</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Delegates</mat-label>
+        <mat-select formControlName="delegates" multiple>
+          <mat-option *ngFor="let delegate of delegateOptions" [value]="delegate">{{ delegate }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Project Manager</mat-label>
+        <mat-select formControlName="projectManagers" multiple required>
+          <mat-option *ngFor="let pm of projectManagerOptions" [value]="pm">{{ pm }}</mat-option>
+        </mat-select>
+        <mat-error *ngIf="isFieldInvalid('projectManagers')">Required</mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Project Repository URL</mat-label>
+        <input matInput formControlName="repositoryUrl">
+        <mat-error *ngIf="isFieldInvalid('repositoryUrl')">Enter a valid URL</mat-error>
+      </mat-form-field>
+    </div>
   </div>
 
-  <!-- Right Column -->
-  <div class="form-column">
-    <ng-container *ngFor="let field of rightFields">
-      <!-- Text Fields -->
-      <mat-form-field appearance="fill" class="full-width" *ngIf="field.type === 'text'">
-        <mat-label>{{ field.label }}</mat-label>
-        <input matInput [formControlName]="field.name" [disabled]="disableFields" />
-        <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
-      </mat-form-field>
-
-      <!-- Multi-select Fields -->
-      <mat-form-field appearance="fill" class="full-width" *ngIf="field.type === 'select'">
-        <mat-label>{{ field.label }}</mat-label>
-        <mat-select [formControlName]="field.name" multiple [disabled]="disableFields">
-          <mat-option *ngFor="let option of options[field.name]" [value]="option">{{ option }}</mat-option>
-        </mat-select>
-        <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
-      </mat-form-field>
-    </ng-container>
+  <div class="button-row">
+    <button mat-raised-button color="primary" (click)="validateForm(6)">Validate First 6</button>
+    <button mat-raised-button color="accent" (click)="validateForm(10)">Validate All</button>
   </div>
 </form>
 
-<!-- Action Buttons -->
-<div class="button-row">
-  <button mat-raised-button color="primary" (click)="setRequiredFields(6)">Set 6 Required</button>
-  <button mat-raised-button color="accent" (click)="setRequiredFields(9)">Set 9 Required</button>
-  <button mat-raised-button color="warn" (click)="patchValues()">Patch Values</button>
-</div>
-.title {
-  font-size: 24px;
-  font-weight: 600;
-  color: #003366;
-  text-align: center;
-  margin: 24px 0 8px;
-  border-bottom: 2px solid #e0e0e0;
-  padding-bottom: 8px;
-}
-
-.form-container {
-  display: flex;
-  flex-direction: row;
-  gap: 40px;
-  padding: 40px 60px;
-  background: #fff;
-  border: 1px solid #dcdcdc;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-  max-width: 1200px;
-  margin: auto;
-}
-
-.form-column {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-}
-
-.full-width {
-  width: 100%;
-}
-
-mat-form-field {
-  background: #fafafa;
-  border-radius: 4px;
-}
-
-mat-label {
-  font-weight: 500;
-  color: #003366;
-}
-
-mat-hint {
-  font-size: 12px;
-  color: #666;
-}
-
-.button-row {
-  margin-top: 32px;
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-}
-
-.button-row button {
-  min-width: 120px;
-  font-weight: 500;
-}
-
-button.mat-raised-button {
-  border-radius: 24px;
-  padding: 8px 24px;
-}
-
-// Typography and layout
-body {
-  font-family: 'Heebo', sans-serif;
-}
-
-.title {
-  font-size: 24px;
-  font-weight: 600;
-  color: #003366;
-  text-align: center;
-  padding: 16px 0;
-  margin-bottom: 16px;
-  border-bottom: 2px solid #e0e0e0;
-}
-
-// Form container
-.form-container {
-  display: flex;
-  flex-direction: row;
-  gap: 48px;
-  padding: 40px 60px;
-  max-width: 1200px;
-  margin: 0 auto;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-// Form column
-.form-column {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 28px;
-}
-
-.full-width {
-  width: 100% !important;
-}
-
-// Material form field tweaks
-::ng-deep .mat-mdc-form-field {
-  width: 100% !important;
-  font-size: 1.6rem !important;
-  line-height: 24px !important;
-  letter-spacing: 0.15px !important;
-  text-align: left;
-  display: flex;
-  flex-direction: column;
-}
-
-// Label styling
-::ng-deep .mat-mdc-floating-label {
-  font-weight: 500;
-  color: #003366;
-}
-
-// Input hints
-mat-hint {
-  font-size: 12px;
-  color: #666;
-  margin-top: 4px;
-}
-
-// Buttons row
-.button-row {
-  margin-top: 32px;
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-}
-
-.button-row button {
-  min-width: 120px;
-  font-weight: 500;
-  border-radius: 20px;
-  padding: 10px 24px;
-}
-++++++++++++++++++++++++++++
- .title {
-    font-size: 26px;
-    font-weight: 600;
-    color: #003366;
-    padding: 16px 0;
-    margin-bottom: 8px;
-    border-bottom: 2px solid #ccc;
-    text-align: center;
-  }
-
+<style>
   .form-container {
     display: flex;
-    gap: 40px;
-    padding: 32px 48px;
-    background: #ffffff;
-    border: 1px solid #e0e0e0;
+    flex-direction: column;
+    padding: 24px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+
+  .form-row {
+    display: flex;
+    gap: 40px;
   }
 
   .form-column {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 28px;
+    gap: 20px;
   }
 
   .full-width {
@@ -380,242 +177,8 @@ mat-hint {
 
   .button-row {
     margin-top: 24px;
-    text-align: center;
-  }
-
-  .button-row button {
-    margin: 0 12px;
-    min-width: 120px;
-  }
-
-  ::ng-deep .mat-mdc-form-field {
-    width: 100% !important;
-    font-size: 1.6rem !important;
-    line-height: 24px !important;
-    letter-spacing: 0.15px !important;
-    text-align: left !important;
-    display: flex !important;
-    flex-direction: column !important;
-  }
-
-  ::ng-deep .mat-mdc-floating-label {
-    color: #003366 !important;
-    font-weight: 500 !important;
-  }
-
-  ::ng-deep .mat-mdc-input-element {
-    font-size: 1.6rem !important;
-    color: #000 !important;
-  }
-
-  ::ng-deep .mat-mdc-select {
-    font-size: 1.6rem !important;
-  }
-
-  ::ng-deep .mat-mdc-option {
-    font-size: 1.5rem !important;
-  }
-
-  ::ng-deep .mat-mdc-form-field-hint,
-  ::ng-deep .mat-mdc-form-field-error {
-    font-size: 12px;
-    color: #666;
-  }
-
-=========
-<style>
-  .title {
-    font-size: 26px;
-    font-weight: 600;
-    color: #003366;
-    padding: 16px 0;
-    margin-bottom: 8px;
-    border-bottom: 2px solid #ccc;
-    text-align: center;
-  }
-
-  .form-container {
     display: flex;
-    gap: 40px;
-    padding: 32px 48px;
-    background: #ffffff;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  }
-
-  .form-column {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 28px;
-  }
-
-  .custom-form-field {
-    width: 100%;
-    font-size: 1.6rem !important;
-    line-height: 24px !important;
-    letter-spacing: 0.15px !important;
-  }
-
-  .mat-mdc-form-field {
-    display: inline-flex;
-    flex-direction: column;
-    text-align: left;
-    font-family: Roboto, "Helvetica Neue", sans-serif;
-  }
-
-  .button-row {
-    margin-top: 24px;
-    text-align: center;
-  }
-
-  .button-row button {
-    margin: 0 12px;
-    min-width: 120px;
-    font-weight: 500;
-    font-size: 14px;
-    border-radius: 4px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-  }
-++++++++++++++++++++++++++++++++++++++++++++)))))))))))))))))))))))))))))))
-<h2 class="title">MyProjects</h2>
-
-<form [formGroup]="form" class="form-container">
-  <!-- Left Column -->
-  <div class="form-column">
-    <ng-container *ngFor="let field of leftFields">
-      <mat-form-field appearance="outline" class="custom-form-field full-width" *ngIf="field.type === 'text'">
-        <mat-label>{{ field.label }}</mat-label>
-        <input matInput [formControlName]="field.name" [disabled]="disableFields" required>
-        <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
-        <mat-error *ngIf="form.get(field.name)?.hasError('required')">
-          {{ field.label }} is required
-        </mat-error>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="custom-form-field full-width" *ngIf="field.type === 'select'">
-        <mat-label>{{ field.label }}</mat-label>
-        <mat-select [formControlName]="field.name" [multiple]="true" [disabled]="disableFields" required>
-          <mat-option *ngFor="let option of options[field.name]" [value]="option">{{ option }}</mat-option>
-        </mat-select>
-        <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
-        <mat-error *ngIf="form.get(field.name)?.hasError('required')">
-          {{ field.label }} is required
-        </mat-error>
-      </mat-form-field>
-    </ng-container>
-  </div>
-
-  <!-- Right Column -->
-  <div class="form-column">
-    <ng-container *ngFor="let field of rightFields">
-      <mat-form-field appearance="outline" class="custom-form-field full-width" *ngIf="field.type === 'text'">
-        <mat-label>{{ field.label }}</mat-label>
-        <input matInput [formControlName]="field.name" [disabled]="disableFields" required>
-        <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
-        <mat-error *ngIf="form.get(field.name)?.hasError('required')">
-          {{ field.label }} is required
-        </mat-error>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="custom-form-field full-width" *ngIf="field.type === 'select'">
-        <mat-label>{{ field.label }}</mat-label>
-        <mat-select [formControlName]="field.name" [multiple]="true" [disabled]="disableFields" required>
-          <mat-option *ngFor="let option of options[field.name]" [value]="option">{{ option }}</mat-option>
-        </mat-select>
-        <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
-        <mat-error *ngIf="form.get(field.name)?.hasError('required')">
-          {{ field.label }} is required
-        </mat-error>
-      </mat-form-field>
-    </ng-container>
-  </div>
-</form>
-
-<div class="button-row">
-  <button mat-raised-button color="primary" (click)="setRequiredFields(6)">Set 6 Required</button>
-  <button mat-raised-button color="accent" (click)="setRequiredFields(9)">Set 9 Required</button>
-  <button mat-raised-button color="warn" (click)="patchValues()">Patch Values</button>
-</div>
-
-<style>
-  .title {
-    font-size: 26px;
-    font-weight: 600;
-    color: #003366;
-    padding: 16px 0;
-    margin-bottom: 8px;
-    border-bottom: 2px solid #ccc;
-    text-align: center;
-  }
-
-  .form-container {
-    display: flex;
-    gap: 40px;
-    padding: 32px 48px;
-    background: #ffffff;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-  }
-
-  .form-column {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 28px;
-  }
-
-  .full-width {
-    width: 100%;
-  }
-
-  .button-row {
-    margin-top: 24px;
-    text-align: center;
-  }
-
-  .button-row button {
-    margin: 0 12px;
-    min-width: 120px;
-  }
-
-  .custom-form-field.mat-mdc-form-field {
-    font-family: "Roboto", sans-serif;
-  }
-
-  .custom-form-field.mat-mdc-form-field .mdc-notched-outline {
-    border-color: #1976d2;
-  }
-
-  .custom-form-field.mat-mdc-form-field .mdc-notched-outline.mat-mdc-notched-outline {
-    border-width: 1px;
-  }
-
-  .custom-form-field .mat-mdc-form-field-label {
-    top: -1.4em;
-    font-weight: 500;
-    font-size: 14px;
-    color: #333;
-  }
-
-  .custom-form-field .mat-mdc-form-field-infix {
-    padding: 1em 0.75em;
-  }
-
-  .mat-mdc-form-field-subscript-wrapper {
-    margin-top: 0.25rem;
-  }
-
-  mat-error {
-    color: #d32f2f;
-    font-size: 13px;
-    font-weight: 500;
-  }
-
-  mat-hint {
-    color: #666;
-    font-size: 12px;
+    justify-content: center;
+    gap: 20px;
   }
 </style>
