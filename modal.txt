@@ -1,140 +1,72 @@
-✅ 1. HTML Structure
-Ensure your modal-section.component.html looks like this:
 
+1. Component HTML (modal-section.component.html)
 html
 Copy
 Edit
-<div mat-dialog-container class="custom-dialog-container">
+<div class="custom-dialog">
+  <!-- Close Button -->
   <button mat-icon-button class="close-button" mat-dialog-close>
     <mat-icon color="warn">close</mat-icon>
   </button>
 
-  <h1 mat-dialog-title>Hi {{data.name}}</h1>
+  <!-- Title -->
+  <h1 mat-dialog-title>Hi {{ data.name }}</h1>
+
+  <!-- Content -->
   <div mat-dialog-content>
     <p>What's your favorite animal?</p>
   </div>
 
+  <!-- Actions -->
   <div mat-dialog-actions class="dialog-actions">
     <button mat-button (click)="onNoClick()">No Thanks</button>
     <button mat-button [mat-dialog-close]="data.animal" cdkFocusInitial>Ok</button>
   </div>
 </div>
-✅ 2. CSS Styling
-Add the following to your modal-section.component.scss (or .css):
-
+2. Component CSS/SCSS (modal-section.component.scss)
 scss
 Copy
 Edit
-::ng-deep .mat-dialog-container.custom-dialog-container {
-  background-color: white;
-  border-radius: 8px;
-  padding: 20px;
-  position: relative;
+::ng-deep .mat-mdc-dialog-container {
+  background-color: #fff !important;
+  border-radius: 12px;
+  padding: 0;
   overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  position: relative;
+}
+
+.custom-dialog {
+  position: relative;
+  padding: 24px;
 }
 
 .close-button {
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: 12px;
+  right: 12px;
   z-index: 10;
 }
 
 .dialog-actions {
   display: flex;
   justify-content: flex-end;
-  margin-top: 20px;
+  padding-top: 16px;
 }
-🔍 ::ng-deep is used to override Angular Material styles. If using newer Angular versions, consider using a global style file or encapsulation strategies.
-
-✅ 3. Optional Enhancements
-If you want to apply these styles globally or ensure they work with dynamic modals, apply them in styles.scss with ::ng-deep or use [panelClass] in your TypeScript component when opening the modal:
-
+3. Open Dialog With Custom Style (from parent component)
 ts
 Copy
 Edit
 this.dialog.open(ModalSectionComponent, {
-  panelClass: 'custom-dialog-container',
-  data: { name: 'John' }
+  data: { name: 'John' },
+  panelClass: 'custom-dialog-panel'  // Optional: apply a global class
 });
-Let me know if you'd like help implementing this in your TypeScript logic or setting up animations/styling refinements.
+In styles.scss:
 
-You said:
-
-✅ Step-by-Step CSS Override
-Add this to your styles.scss (global stylesheet), or use ::ng-deep in the component stylesheet.
-
-✅ Global Style (Recommended for full override):
 scss
 Copy
 Edit
-.mat-mdc-dialog-container {
-  background-color: #ffffff !important;
-  border-radius: 12px !important;
-  padding: 0 !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-  position: relative;
-}
-
-.mat-mdc-dialog-content {
-  padding: 24px !important;
-  max-height: 65vh !important;
-  overflow-y: auto !important;
-  min-height: 20vh !important;
-  color: #000 !important;
-  font-family: 'Arial', sans-serif !important;
-  font-size: 1rem !important;
-}
-
-.mat-mdc-dialog-actions {
-  display: flex;
-  justify-content: flex-end;
-  padding: 16px 24px !important;
-  border-top: 1px solid #eee;
-}
-
-.close-button {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  z-index: 10;
-}
-✅ Using ::ng-deep (if styles are component-specific):
-scss
-Copy
-Edit
-::ng-deep .mat-mdc-dialog-container {
-  background: white;
+.custom-dialog-panel .mat-mdc-dialog-container {
+  background: #fff;
   border-radius: 10px;
-  padding: 0;
 }
-
-::ng-deep .mat-mdc-dialog-content {
-  padding: 20px;
-  max-height: 65vh;
-  min-height: 20vh;
-  overflow-y: auto;
-}
-
-::ng-deep .mat-mdc-dialog-actions {
-  display: flex;
-  justify-content: flex-end;
-  padding: 16px 24px;
-}
-
-::ng-deep .close-button {
-  position: absolute;
-  right: 12px;
-  top: 12px;
-}
-❗ Important Notes:
-Use !important sparingly, only if the styles are not applying due to Angular Material specificity.
-
-Ensure your dialog is using a custom panelClass if needed to scope styles:
-
-ts
-Copy
-Edit
-this.dialog.open(MyDialogComponent, {
-  panelClass: 'custom-dialog'
-});
