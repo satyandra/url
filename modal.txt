@@ -267,3 +267,83 @@ button.mat-raised-button {
   border-radius: 24px;
   padding: 8px 24px;
 }
+
+// Typography and layout
+body {
+  font-family: 'Heebo', sans-serif;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #003366;
+  text-align: center;
+  padding: 16px 0;
+  margin-bottom: 16px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+// Form container
+.form-container {
+  display: flex;
+  flex-direction: row;
+  gap: 48px;
+  padding: 40px 60px;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+// Form column
+.form-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.full-width {
+  width: 100% !important;
+}
+
+// Material form field tweaks
+::ng-deep .mat-mdc-form-field {
+  width: 100% !important;
+  font-size: 1.6rem !important;
+  line-height: 24px !important;
+  letter-spacing: 0.15px !important;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+}
+
+// Label styling
+::ng-deep .mat-mdc-floating-label {
+  font-weight: 500;
+  color: #003366;
+}
+
+// Input hints
+mat-hint {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+}
+
+// Buttons row
+.button-row {
+  margin-top: 32px;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.button-row button {
+  min-width: 120px;
+  font-weight: 500;
+  border-radius: 20px;
+  padding: 10px 24px;
+}
+
