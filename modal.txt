@@ -182,3 +182,97 @@ import { AppComponent } from './app.component';
   bootstrap: [AppComponent]
 })
 export class AppModule {}
+
+
+================================
+<h2 class="title">MyProjects</h2>
+
+<form [formGroup]="form" class="form-container">
+  <!-- Left Column -->
+  <div class="form-column">
+    <ng-container *ngFor="let field of leftFields">
+      <mat-form-field appearance="fill" class="full-width" *ngIf="field.type === 'text'">
+        <mat-label>{{ field.label }}</mat-label>
+        <input matInput [formControlName]="field.name" [disabled]="disableFields" />
+        <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="full-width" *ngIf="field.type === 'select'">
+        <mat-label>{{ field.label }}</mat-label>
+        <mat-select [formControlName]="field.name" [multiple]="true" [disabled]="disableFields">
+          <mat-option *ngFor="let option of options[field.name]" [value]="option">{{ option }}</mat-option>
+        </mat-select>
+        <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
+      </mat-form-field>
+    </ng-container>
+  </div>
+
+  <!-- Right Column -->
+  <div class="form-column">
+    <ng-container *ngFor="let field of rightFields">
+      <mat-form-field appearance="fill" class="full-width" *ngIf="field.type === 'text'">
+        <mat-label>{{ field.label }}</mat-label>
+        <input matInput [formControlName]="field.name" [disabled]="disableFields" />
+        <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="fill" class="full-width" *ngIf="field.type === 'select'">
+        <mat-label>{{ field.label }}</mat-label>
+        <mat-select [formControlName]="field.name" [multiple]="true" [disabled]="disableFields">
+          <mat-option *ngFor="let option of options[field.name]" [value]="option">{{ option }}</mat-option>
+        </mat-select>
+        <mat-hint *ngIf="field.hint">{{ field.hint }}</mat-hint>
+      </mat-form-field>
+    </ng-container>
+  </div>
+</form>
+
+<div class="button-row">
+  <button mat-raised-button color="primary" (click)="setRequiredFields(6)">Set 6 Required</button>
+  <button mat-raised-button color="accent" (click)="setRequiredFields(9)">Set 9 Required</button>
+  <button mat-raised-button color="warn" (click)="patchValues()">Patch Values</button>
+</div>
+
+<style>
+  .title {
+    font-size: 26px;
+    font-weight: 600;
+    color: #003366;
+    padding: 16px 0;
+    margin-bottom: 8px;
+    border-bottom: 2px solid #ccc;
+    text-align: center;
+  }
+
+  .form-container {
+    display: flex;
+    gap: 40px;
+    padding: 32px 48px;
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+
+  .form-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .full-width {
+    width: 100%;
+  }
+
+  .button-row {
+    margin-top: 24px;
+    text-align: center;
+  }
+
+  .button-row button {
+    margin: 0 12px;
+    min-width: 120px;
+  }
+</style>
+
