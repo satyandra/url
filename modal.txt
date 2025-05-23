@@ -182,3 +182,100 @@ export class InitiativeFormComponent implements OnInit {
     gap: 20px;
   }
 </style>
+========================
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators, AbstractControl } from '@angular/forms';
+
+@Component({
+  selector: 'app-initiative-form',
+  templateUrl: './initiative-form.component.html',
+  styleUrls: ['./initiative-form.component.scss']
+})
+export class InitiativeFormComponent implements OnInit {
+  initiativeForm!: FormGroup;
+
+  initiativeTypes = ['Regulatory', 'Strategic', 'Operational'];
+  pmos = ['PMO 1', 'PMO 2', 'PMO 3'];
+  delegateOptions = ['Delegate 1', 'Delegate 2', 'Delegate 3'];
+  projectManagerOptions = ['PM 1', 'PM 2', 'PM 3'];
+
+  // 🟩 Flags to disable fields
+  disableFields = {
+    initiativeType: false,
+    pmo: false,
+    fundingAmount: false
+  };
+
+  constructor(private fb: FormBuilder) {}
+
+  ngOnInit(): void {
+    this.initiativeForm = this.fb.group({
+      initiativeName: [{ value: '', disabled: false }, Validators.required],
+      prNumber: [{ value: '', disabled: false }, Validators.required],
+      fiNumber: [{ value: '', disabled: false }, Validators.required],
+      initiativeType: [{ value: '', disabled: this.disableFields.initiativeType }, Validators.required],
+      fundingAmount: [{ value: '', disabled: this.disableFields.fundingAmount }, [Validators.required, this.currencyValidator]],
+      pmo: [{ value: '', disabled: this.disableFields.pmo }, Validators.required],
+      accountableExecutive: ['', Validators.required],
+      delegates: [[]],
+      projectManagers: [[], Validators.required],
+      repositoryUrl: ['', Validators.pattern('https?://.+')]
+    });
+
+    this.patchFormData();
+  }
+
+  patchFormData(): void {
+    const data = {
+      initiativeName: 'Digital Transformation',
+      prNumber: 'PR-2025-001',
+      fiNumber: 'FI-987654',
+      initiativeType: 'Strategic',
+      fundingAmount: '150000.00',
+      pmo: 'PMO 1',
+      accountableExecutive: 'Jane Doe',
+      delegates: ['Delegate 1', 'Delegate 3'],
+      projectManagers: ['PM 2'],
+      repositoryUrl: 'https://github.com/example/repo'
+    };
+
+    this.initiativeForm.patchValue(data);
+  }
+
+  isFieldInvalid(fieldName: string): boolean {
+    const control = this.initiativeForm.get(fieldName);
+    return !!(control && control.invalid && (control.touched || control.dirty));
+  }
+
+  validateForm(requiredFieldCount: number): void {
+    const allFields = Object.keys(this.initiativeForm.controls);
+    const fieldsToCheck = requiredFieldCount === 6 ? allFields.slice(0, 6) : allFields;
+
+    for (const field of fieldsToCheck) {
+      this.initiativeForm.get(field)?.markAsTouched();
+    }
+
+    const invalidFields = fieldsToCheck.filter(field => this.initiativeForm.get(field)?.invalid);
+
+    if (invalidFields.length === 0) {
+      alert(`✅ ${requiredFieldCount === 6 ? 'First 6' : 'All'} fields are valid.`);
+    } else {
+      alert(`❌ Please fill out required fields.`);
+    }
+  }
+
+  formatCurrency(controlName: string): void {
+    const control = this.initiativeForm.get(controlName);
+    const value = control?.value;
+    if (value && !isNaN(value)) {
+      control?.setValue(parseFloat(value).toFixed(2));
+    }
+  }
+
+  currencyValidator(control: AbstractControl): { [key: string]: any } | null {
+    const value = control.value;
+    const pattern = /^\d+(?:\.\d{1,2})?$/;
+    return pattern.test(value) ? null : { invalidCurrency: true };
+  }
+}
+
