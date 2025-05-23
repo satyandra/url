@@ -276,3 +276,87 @@ export class AppModule {}
   }
 </style>
 
+===========================
+import { Component } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html'
+})
+export class AppComponent {
+  form: FormGroup;
+  disableFields = false;
+
+  // Define dynamic fields for the form
+  leftFields = [
+    { name: 'field1', label: 'Text Field 1', type: 'text' },
+    { name: 'field2', label: 'Text Field 2', type: 'text' },
+    { name: 'multi1', label: 'MultiSelect 1', type: 'select' },
+    { name: 'multi2', label: 'MultiSelect 2', type: 'select' },
+    { name: 'url', label: 'Repository URL', type: 'text' }
+  ];
+
+  rightFields = [
+    { name: 'field3', label: 'Text Field 3', type: 'text' },
+    { name: 'field4', label: 'Text Field 4', type: 'text' },
+    { name: 'field5', label: 'Text Field 5', type: 'text' },
+    { name: 'multi3', label: 'MultiSelect 3', type: 'select' },
+    { name: 'multi4', label: 'MultiSelect 4', type: 'select' }
+  ];
+
+  // Multi-select options
+  options: Record<string, string[]> = {
+    multi1: ['Option A', 'Option B', 'Option C'],
+    multi2: ['Option X', 'Option Y', 'Option Z'],
+    multi3: ['Red', 'Green', 'Blue'],
+    multi4: ['One', 'Two', 'Three']
+  };
+
+  constructor(private fb: FormBuilder) {
+    this.form = this.fb.group({});
+    this.initForm();
+  }
+
+  initForm() {
+    // Add all controls dynamically
+    [...this.leftFields, ...this.rightFields].forEach(field => {
+      this.form.addControl(
+        field.name,
+        this.fb.control({ value: '', disabled: this.disableFields })
+      );
+    });
+  }
+
+  setRequiredFields(count: number) {
+    // Remove existing validators
+    Object.keys(this.form.controls).forEach(key => {
+      const control = this.form.get(key);
+      control?.clearValidators();
+      control?.updateValueAndValidity();
+    });
+
+    // Set validators on first `count` fields
+    const allFields = [...this.leftFields, ...this.rightFields];
+    allFields.slice(0, count).forEach(field => {
+      const control = this.form.get(field.name);
+      control?.setValidators(Validators.required);
+      control?.updateValueAndValidity();
+    });
+  }
+
+  patchValues() {
+    this.form.patchValue({
+      field1: 'Patched Text 1',
+      field2: 'Patched Text 2',
+      field3: 'Patched Text 3',
+      field4: 'Patched Text 4',
+      field5: 'Patched Text 5',
+      url: 'https://example.com',
+      multi1: ['Option A', 'Option C'],
+      multi2: ['Option Y'],
+      multi3: ['Red', 'Blue'],
+      multi4: ['One']
+    });
+  }
+}
