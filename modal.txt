@@ -346,4 +346,78 @@ mat-hint {
   border-radius: 20px;
   padding: 10px 24px;
 }
+++++++++++++++++++++++++++++
+ .title {
+    font-size: 26px;
+    font-weight: 600;
+    color: #003366;
+    padding: 16px 0;
+    margin-bottom: 8px;
+    border-bottom: 2px solid #ccc;
+    text-align: center;
+  }
 
+  .form-container {
+    display: flex;
+    gap: 40px;
+    padding: 32px 48px;
+    background: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  }
+
+  .form-column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  .full-width {
+    width: 100%;
+  }
+
+  .button-row {
+    margin-top: 24px;
+    text-align: center;
+  }
+
+  .button-row button {
+    margin: 0 12px;
+    min-width: 120px;
+  }
+
+  ::ng-deep .mat-mdc-form-field {
+    width: 100% !important;
+    font-size: 1.6rem !important;
+    line-height: 24px !important;
+    letter-spacing: 0.15px !important;
+    text-align: left !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  ::ng-deep .mat-mdc-floating-label {
+    color: #003366 !important;
+    font-weight: 500 !important;
+  }
+
+  ::ng-deep .mat-mdc-input-element {
+    font-size: 1.6rem !important;
+    color: #000 !important;
+  }
+
+  ::ng-deep .mat-mdc-select {
+    font-size: 1.6rem !important;
+  }
+
+  ::ng-deep .mat-mdc-option {
+    font-size: 1.5rem !important;
+  }
+
+  ::ng-deep .mat-mdc-form-field-hint,
+  ::ng-deep .mat-mdc-form-field-error {
+    font-size: 12px;
+    color: #666;
+  }
