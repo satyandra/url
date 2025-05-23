@@ -278,4 +278,142 @@ export class InitiativeFormComponent implements OnInit {
     return pattern.test(value) ? null : { invalidCurrency: true };
   }
 }
+=============
+<form [formGroup]="initiativeForm" class="form-wrapper">
+  <div class="form-grid">
+
+    <!-- Initiative Name -->
+    <div class="form-field">
+      <mat-form-field appearance="fill">
+        <mat-label>Initiative Name</mat-label>
+        <input matInput formControlName="initiativeName" />
+        <mat-error *ngIf="isFieldInvalid('initiativeName')">Initiative Name is required</mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- PR Number -->
+    <div class="form-field">
+      <mat-form-field appearance="fill">
+        <mat-label>PR Number</mat-label>
+        <input matInput formControlName="prNumber" />
+        <mat-error *ngIf="isFieldInvalid('prNumber')">PR Number is required</mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- FI Number -->
+    <div class="form-field">
+      <mat-form-field appearance="fill">
+        <mat-label>FI Number</mat-label>
+        <input matInput formControlName="fiNumber" />
+        <mat-error *ngIf="isFieldInvalid('fiNumber')">FI Number is required</mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Initiative Type -->
+    <div class="form-field">
+      <mat-form-field appearance="fill">
+        <mat-label>Initiative Type</mat-label>
+        <mat-select formControlName="initiativeType" [disabled]="disableFields.initiativeType">
+          <mat-option *ngFor="let type of initiativeTypes" [value]="type">{{ type }}</mat-option>
+        </mat-select>
+        <mat-error *ngIf="isFieldInvalid('initiativeType')">Required</mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Funding Amount -->
+    <div class="form-field">
+      <mat-form-field appearance="fill">
+        <mat-label>Funding Amount</mat-label>
+        <span matPrefix>$&nbsp;</span>
+        <input matInput formControlName="fundingAmount" (blur)="formatCurrency('fundingAmount')" />
+        <mat-error *ngIf="isFieldInvalid('fundingAmount')">Enter a valid amount</mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- PMO -->
+    <div class="form-field">
+      <mat-form-field appearance="fill">
+        <mat-label>PMO</mat-label>
+        <mat-select formControlName="pmo" [disabled]="disableFields.pmo">
+          <mat-option *ngFor="let p of pmos" [value]="p">{{ p }}</mat-option>
+        </mat-select>
+        <mat-error *ngIf="isFieldInvalid('pmo')">PMO is required</mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Accountable Executive -->
+    <div class="form-field">
+      <mat-form-field appearance="fill">
+        <mat-label>Accountable Executive</mat-label>
+        <input matInput formControlName="accountableExecutive" />
+        <mat-error *ngIf="isFieldInvalid('accountableExecutive')">Required</mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Delegates -->
+    <div class="form-field">
+      <mat-form-field appearance="fill">
+        <mat-label>Delegates</mat-label>
+        <mat-select formControlName="delegates" multiple>
+          <mat-option *ngFor="let d of delegateOptions" [value]="d">{{ d }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+
+    <!-- Project Managers -->
+    <div class="form-field">
+      <mat-form-field appearance="fill">
+        <mat-label>Project Managers</mat-label>
+        <mat-select formControlName="projectManagers" multiple>
+          <mat-option *ngFor="let pm of projectManagerOptions" [value]="pm">{{ pm }}</mat-option>
+        </mat-select>
+        <mat-error *ngIf="isFieldInvalid('projectManagers')">At least one is required</mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Repository URL -->
+    <div class="form-field">
+      <mat-form-field appearance="fill">
+        <mat-label>Repository URL</mat-label>
+        <input matInput formControlName="repositoryUrl" />
+        <mat-error *ngIf="isFieldInvalid('repositoryUrl')">Enter a valid URL</mat-error>
+      </mat-form-field>
+    </div>
+
+  </div>
+
+  <div class="button-group">
+    <button mat-raised-button color="primary" (click)="validateForm(6)">Validate First 6</button>
+    <button mat-raised-button color="accent" (click)="validateForm(10)">Validate All</button>
+  </div>
+</form>
+
+.form-wrapper {
+  padding: 32px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.button-group {
+  margin-top: 32px;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+mat-form-field {
+  width: 100%;
+}
 
