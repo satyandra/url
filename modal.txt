@@ -417,3 +417,119 @@ mat-form-field {
   width: 100%;
 }
 
+==================
+
+Satyandrasaradhi Polani <psatyandrasaradhi@gmail.com>
+12:00 AM (0 minutes ago)
+to me
+
+import { Component, ViewChild, ElementRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { NgbModal, NgbModalRef } from '@ng-bootstrap/ng-bootstrap';
+
+@Component({
+selector: 'app-loading-popup',
+standalone: true,
+imports: [CommonModule],
+templateUrl: './loading-popup.component.html'
+})
+export class LoadingPopupComponent {
+@ViewChild('loadingModal') loadingModal!: ElementRef;
+private modalRef!: NgbModalRef;
+
+constructor(private modalService: NgbModal) {}
+
+open(message?: string) {
+this.modalRef = this.modalService.open(this.loadingModal, {
+centered: true,
+backdrop: 'static',
+keyboard: false
+});
+}
+
+close() {
+if (this.modalRef) {
+this.modalRef.close();
+}
+}
+}
+
+
+
+-===========
+
+<ng-template #loadingModal>
+<div class="modal-body text-center">
+<p>Loading... Please wait</p>
+<div class="spinner-border text-primary" role="status">
+<span class="visually-hidden">Loading...</span>
+</div>
+</div>
+</ng-template>
+———
+
+import { Component, ViewChild, AfterViewInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { LoadingPopupComponent } from '../loading-popup/loading-popup.component';
+
+@Component({
+selector: 'app-parent',
+standalone: true,
+imports: [CommonModule, LoadingPopupComponent],
+templateUrl: './parent.component.html'
+})
+export class ParentComponent implements AfterViewInit {
+@ViewChild(LoadingPopupComponent) loader!: LoadingPopupComponent;
+
+ngAfterViewInit() {
+// optional trigger
+// this.loader.open();
+}
+
+showLoader() {
+this.loader.open();
+}
+
+hideLoader() {
+this.loader.close();
+}
+}
+—-
+
+.modal-body {
+background-color: #ffffff;
+text-align: center;
+padding: 2rem;
+border-radius: 8px;
+font-size: 1.1rem;
+color: #333;
+
+p {
+margin-bottom: 1.5rem;
+font-weight: 500;
+}
+
+.spinner-border {
+width: 3rem;
+height: 3rem;
+color: #007bff; // Bootstrap primary blue
+margin: 1rem auto;
+}
+}
+
+.bmo-loading {
+margin-top: 1rem;
+
+img {
+width: 50px;
+height: auto;
+animation: spin 1.2s linear infinite;
+}
+}
+
+@keyframes spin {
+0% { transform: rotate(0deg); }
+100% { transform: rotate(360deg); }
+}
+
+
